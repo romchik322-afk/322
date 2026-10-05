@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Вхід адміністратора — NEVERSTORE{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card admin-auth-card">
+    <span class="eyebrow">NEVERSTORE ADMIN</span>
+    <h1>Вхід адміністратора</h1>
+    <p class="muted">Увійдіть до панелі керування магазином.</p>
+    {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn" type="submit">Увійти як адміністратор</button>
+    </form>
+    <p class="auth-foot"><a href="{% url 'login' %}">← Звичайний вхід</a></p>
+  </div>
+</div>
+{% endblock %}

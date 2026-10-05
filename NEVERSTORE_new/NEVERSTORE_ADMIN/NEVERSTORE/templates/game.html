@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} — NEVERSTORE{% endblock %}
+{% block content %}
+<div class="container detail">
+<section class="detail-hero" style="--game-bg:url('{% if game.image_url %}{{ game.image_url }}{% elif game.image %}{{ game.image.url }}{% else %}https://cdn.akamai.steamstatic.com/steam/apps/{{ game.steam_app_id }}/header.jpg{% endif %}')">
+<div class="detail-content"><div class="tag-row"><span class="tag">{{ game.genre }}</span>{% if game.is_aaa %}<span class="mini-tag">AAA</span>{% endif %}{% if game.is_free_to_play %}<span class="mini-tag">БЕЗКОШТОВНО</span>{% endif %}</div><h1>{{ game.title }}</h1><p class="description">{{ game.description }}</p><div class="detail-rating"><span>★</span> {% if game.avg_rating %}{{ game.avg_rating|floatformat:1 }} / 5{% else %}Ще немає оцінок{% endif %} <small>({{ game.rating_count }} оцінок)</small></div></div>
+</section>
+<div class="detail-toolbar"><a class="btn secondary" href="{% url 'home' %}">← До каталогу</a>{% if user.is_authenticated %}<a class="favorite-btn {% if favorite %}liked{% endif %}" href="{% url 'toggle_favorite' game.id %}">{% if favorite %}♥ В обраному{% else %}♡ Додати в обране{% endif %}</a>{% endif %}</div>
+<div class="info-grid">
+<div class="panel"><h2>Про гру</h2><div class="facts"><div class="fact"><span>Розробник</span><strong>{{ game.developer|default:"—" }}</strong></div><div class="fact"><span>Видавець</span><strong>{{ game.publisher|default:"—" }}</strong></div><div class="fact"><span>Дата виходу</span><strong>{{ game.release_date|date:"d.m.Y"|default:"—" }}</strong></div><div class="fact"><span>Платформа</span><strong>PC · Steam</strong></div></div></div>
+<div class="panel"><div class="purchase"><div><div class="muted">Ціна</div>{% if game.old_price > game.price %}<div class="old-price">{{ game.old_price }} {{ game.price_currency }}</div>{% endif %}<div class="big-price {% if game.price == 0 %}free{% endif %}">{% if game.price == 0 %}Безкоштовно{% else %}{{ game.price }} {{ game.price_currency }}{% endif %}</div>{% if game.price_updated_at %}<div class="updated">Ціну оновлено {{ game.price_updated_at|date:"d.m.Y о H:i" }}</div>{% else %}<div class="updated">Резервна ціна · синхронізуй Steam</div>{% endif %}</div>{% if owned %}<a class="btn green" href="{% url 'library' %}">✓ У бібліотеці</a>{% elif user.is_authenticated %}<div class="purchase-actions"><a class="btn" href="{% url 'buy_game' game.id %}">Придбати</a><a class="btn secondary" href="{% url 'add_to_cart' game.id %}">До кошика</a></div>{% else %}<a class="btn" href="{% url 'login' %}">Увійти, щоб придбати</a>{% endif %}</div></div>
+</div>
+{% if user.is_authenticated %}<section class="panel rating-panel"><div><h2>Твоя оцінка</h2><p class="muted">Натисни на зірку від 1 до 5.</p></div><form class="stars-form" method="post" action="{% url 'rate_game' game.id %}">{% csrf_token %}{% for n in "12345" %}<button name="rating" value="{{ n }}" class="star {% if user_rating|add:'0' >= forloop.counter %}selected{% endif %}" title="{{ n }} з 5">★</button>{% endfor %}</form></section>{% endif %}
+</div>
+{% endblock %}

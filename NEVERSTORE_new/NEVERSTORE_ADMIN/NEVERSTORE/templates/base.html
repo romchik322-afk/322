@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#05070c">
+<title>{% block title %}NEVERSTORE{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'mfs/app.css' %}">
+</head>
+<body>
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div><div class="scanlines"></div>
+<header class="topbar">
+  <div class="container nav">
+    <a class="logo" href="{% url 'home' %}" aria-label="NEVERSTORE — головна"><span class="logo-mark">N</span><span>NEVER<span class="logo-accent">STORE</span></span></a>
+    <nav class="navlinks">
+      <a href="{% url 'home' %}">Магазин</a>
+      <a href="{% url 'home' %}?category=aaa">AAA</a>
+      <a href="{% url 'home' %}?category=indie">Інді</a>
+      <a href="{% url 'home' %}?category=free">Безкоштовні</a>
+      {% if user.is_authenticated %}<a href="{% url 'library' %}">Бібліотека</a><a href="{% url 'cart' %}">Кошик</a>{% endif %}
+    </nav>
+    <div class="account">
+      {% if user.is_authenticated %}
+        {% if user.is_staff %}<a class="admin-link" href="{% url 'admin_dashboard' %}">⚙ Панель адміністратора</a>{% endif %}
+        <a class="user-pill" href="{% url 'profile' %}">◉ {{ user.username }}</a><a href="{% url 'logout' %}">Вийти</a>
+      {% else %}<a href="{% url 'login' %}">Увійти</a><a class="admin-login-link" href="{% url 'admin_login' %}">Увійти як адміністратор</a><a class="btn small" href="{% url 'register' %}">Реєстрація</a>{% endif %}
+    </div>
+  </div>
+</header>
+<main>{% block content %}{% endblock %}</main>
+<footer><div class="container footer-inner"><strong>NEVERSTORE</strong><span>Ігри, які залишаються з тобою.</span><span>Ціни можна оновити через Steam Store.</span></div></footer>
+<script>
+(() => {
+  document.querySelectorAll('.game-card, .featured-card').forEach((card, index) => {
+    card.style.setProperty('--delay', `${index * 45}ms`);
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width - .5) * 5;
+      const y = ((e.clientY - r.top) / r.height - .5) * -5;
+      card.style.setProperty('--rx', `${y}deg`); card.style.setProperty('--ry', `${x}deg`);
+    });
+    card.addEventListener('mouseleave', () => { card.style.setProperty('--rx','0deg'); card.style.setProperty('--ry','0deg'); });
+  });
+  const random = document.querySelector('[data-random-game]');
+  if (random) random.addEventListener('click', () => {
+    const cards = [...document.querySelectorAll('.game-card')];
+    if (!cards.length) return;
+    const card = cards[Math.floor(Math.random() * cards.length)];
+    card.scrollIntoView({behavior:'smooth', block:'center'});
+    card.classList.add('roulette-hit'); setTimeout(() => card.classList.remove('roulette-hit'), 1100);
+  });
+})();
+</script>
+</body>
+</html>
